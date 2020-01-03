@@ -23,6 +23,19 @@ const STDLIB = "#!/usr/bin/env bash\n" +
 	"# algorithm and so it won't be re-exported.\n" +
 	"export DIRENV_IN_ENVRC=1\n" +
 	"\n" +
+	"# Used by rc.go, don't use\n" +
+	"__dump_at_exit() {\n" +
+	"  local ret=$?\n" +
+	"  # the dump FD is always 3\n" +
+	"  \"$direnv\" dump gzenv 3\n" +
+	"  exit \"$ret\"\n" +
+	"}\n" +
+	"\n" +
+	"# Used by rc.go, don't use\n" +
+	"__setup_exit_trap() {\n" +
+	"  trap __dump_at_exit EXIT\n" +
+	"}\n" +
+	"\n" +
 	"# Usage: direnv_layout_dir\n" +
 	"#\n" +
 	"# Prints the folder path that direnv should use to store layout content.\n" +

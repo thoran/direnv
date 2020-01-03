@@ -132,8 +132,8 @@ func (rc *RC) Load(config *Config, env Env) (newEnv Env, err error) {
 		return
 	}
 
-	argtmpl := `eval "$("%s" stdlib)" >&2 && source_env "%s" >&2 && "%s" dump`
-	arg := fmt.Sprintf(argtmpl, direnv, rc.RelTo(wd), direnv)
+	argtmpl := `eval "$("%s" stdlib)" && __setup_exit_trap && source_env "%s"`
+	arg := fmt.Sprintf(argtmpl, direnv, rc.RelTo(wd))
 	cmd := exec.Command(config.BashPath, "--noprofile", "--norc", "-c", arg)
 
 	if config.DisableStdin {
@@ -145,20 +145,46 @@ func (rc *RC) Load(config *Config, env Env) (newEnv Env, err error) {
 		cmd.Stdin = os.Stdin
 	}
 
-	cmd.Stderr = os.Stderr
-	cmd.Env = newEnv.ToGoEnv()
-	cmd.Dir = wd
-
-	out, err := cmd.Output()
+	var (
+		r *os.File
+		w *os.File
+	)
+	r, w, err = os.Pipe()
 	if err != nil {
 		return
 	}
+
+	cmd.Dir = wd
+	cmd.Env = newEnv.ToGoEnv()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.ExtraFiles = []*os.File{w}
+
+	if err = cmd.Start(); err != nil {
+		return
+	}
+	// we passed this one to the child
+	w.Close()
+
+	log_status(newEnv, "woot?")
+
+	var out []byte
+	out, err = ioutil.ReadAll(r)
+	if err != nil {
+		return
+	}
+
+	log_status(newEnv, "XXXX")
 
 	newEnv2, err := LoadEnv(string(out))
 	if err != nil {
 		return
 	}
 	newEnv = newEnv2
+
+	log_status(newEnv, "TTTTTTTTT")
+
+	cmd.Wait()
 
 	return
 }

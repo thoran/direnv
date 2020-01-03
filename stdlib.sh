@@ -21,6 +21,19 @@ DIRENV_LOG_FORMAT="${DIRENV_LOG_FORMAT-direnv: %s}"
 # algorithm and so it won't be re-exported.
 export DIRENV_IN_ENVRC=1
 
+# Used by rc.go, don't use
+__dump_at_exit() {
+  local ret=$?
+  # the dump FD is always 3
+  "$direnv" dump gzenv 3
+  exit "$ret"
+}
+
+# Used by rc.go, don't use
+__setup_exit_trap() {
+  trap __dump_at_exit EXIT
+}
+
 # Usage: direnv_layout_dir
 #
 # Prints the folder path that direnv should use to store layout content.

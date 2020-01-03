@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -52,7 +53,7 @@ var CmdExec = &Cmd{
 
 		// Load the rc
 		if rc != nil {
-			if newEnv, err = rc.Load(config, env); err != nil {
+			if newEnv, err = rc.Load(context.Background(), config, env); err != nil {
 				return
 			}
 		} else {

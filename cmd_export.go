@@ -1,6 +1,7 @@
 package main
 
 import (
+	ctx "context"
 	"fmt"
 	"log"
 	"sort"
@@ -64,7 +65,7 @@ func (context *ExportContext) updateRC() (err error) {
 }
 
 func (context *ExportContext) loadRC() (err error) {
-	context.newEnv, err = context.foundRC.Load(context.config, context.oldEnv)
+	context.newEnv, err = context.foundRC.Load(ctx.Background(), context.config, context.oldEnv)
 	return
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -118,7 +119,7 @@ func (rc *RC) Touch() error {
 
 const NOT_ALLOWED = "%s is blocked. Run `direnv allow` to approve its content"
 
-func (rc *RC) Load(config *Config, env Env) (newEnv Env, err error) {
+func (rc *RC) Load(ctx context.Context, config *Config, env Env) (newEnv Env, err error) {
 	wd := config.WorkDir
 	direnv := config.SelfPath
 	newEnv = env.Copy()
@@ -134,7 +135,7 @@ func (rc *RC) Load(config *Config, env Env) (newEnv Env, err error) {
 
 	argtmpl := `eval "$("%s" stdlib)" && __setup_exit_trap && source_env "%s"`
 	arg := fmt.Sprintf(argtmpl, direnv, rc.RelTo(wd))
-	cmd := exec.Command(config.BashPath, "--noprofile", "--norc", "-c", arg)
+	cmd := exec.CommandContext(ctx, config.BashPath, "--noprofile", "--norc", "-c", arg)
 
 	if config.DisableStdin {
 		cmd.Stdin, err = os.Open(os.DevNull)

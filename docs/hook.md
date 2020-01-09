@@ -5,24 +5,16 @@ has its own extension mechanism.
 
 Once the hook is configured, restart your shell for direnv to be activated.
 
-## BASH
+## BASH and/or ZSH
 
-Add the following line at the end of the `~/.bashrc` file:
+Add the following line at the end of the `~/.bashrc` or `~/.zshrc` file:
 
 ```sh
-eval "$(direnv hook bash)"
+eval "$(direnv hook $SHELL)"
 ```
 
 Make sure it appears even after rvm, git-prompt and other shell extensions
 that manipulate the prompt.
-
-## ZSH
-
-Add the following line at the end of the `~/.zshrc` file:
-
-```sh
-eval "$(direnv hook zsh)"
-```
 
 ## FISH
 
